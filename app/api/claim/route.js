@@ -17,13 +17,19 @@ export async function POST(request) {
     const rewardLabel = String(body.rewardLabel || 'Free Waffle Cone Upgrade or Topping').trim();
 
     if (phone.length !== 10) {
-      return NextResponse.json({ ok: false, error: 'Please enter a valid 10-digit mobile number.' }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: 'Please enter a valid 10-digit mobile number.' },
+        { status: 400 }
+      );
     }
 
     const sheet = await readFullSheetState();
 
     if (!sheet.Settings.campaign_active) {
-      return NextResponse.json({ ok: false, error: 'Campaign is currently paused by the store owner.' }, { status: 403 });
+      return NextResponse.json(
+        { ok: false, error: 'Campaign is currently paused by the store owner.' },
+        { status: 403 }
+      );
     }
 
     const today = getTodayISTDate();
@@ -32,7 +38,11 @@ export async function POST(request) {
     );
     if (playedToday) {
       return NextResponse.json(
-        { ok: false, alreadyPlayedToday: true, error: 'Daily limit reached (1 game reward per mobile number per day).' },
+        {
+          ok: false,
+          alreadyPlayedToday: true,
+          error: 'Daily limit reached (1 game reward per mobile number per day).',
+        },
         { status: 409 }
       );
     }
@@ -61,11 +71,22 @@ export async function POST(request) {
     }
 
     const nextNum = 1001 + sheet.Coupons.length;
-    const newCoupons = $$\n      {\n        coupon_id: `CPN-${nextNum}`,\n        user_phone: phone,\n        type: 'GAME_REWARD',\n        reward_label: rewardLabel,\n        status: 'UNLOCKED',\n        triggered_by_phone: '',\n        unlocked_at: nowIST,\n        redeemed_at: '',\n      },\n    $$;
+    const newCoupons = [
+      {
+        coupon_id: `CPN-${nextNum}`,
+        user_phone: phone,
+        type: 'GAME_REWARD',
+        reward_label: rewardLabel,
+        status: 'UNLOCKED',
+        triggered_by_phone: '',
+        unlocked_at: nowIST,
+        redeemed_at: '',
+      },
+    ];
 
     if (isBrandNewUser && referrer) {
       newCoupons.push({
-        coupon_id: CPN-${nextNum + 1},
+        coupon_id: `CPN-${nextNum + 1}`,
         user_phone: referrer.phone,
         type: 'REFERRAL_CONE',
         reward_label: sheet.Settings.referral_reward_text || 'Free ₹100 Cone',
